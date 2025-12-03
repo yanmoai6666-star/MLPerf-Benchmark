@@ -58,33 +58,28 @@ class BenchmarkRunner:
         for i in range(self.config.num_iterations):
             start_time = time.perf_counter()
             
-            # 模拟数据处理
+            # 修复：添加数据处理前的格式转换
             batch = next(loader.load_from_proto(
                 Path(self.config.dataset_path)
             ))
             
+            # 修复：转换为numpy数组以提高处理性能
+            batch_array = self._convert_to_numpy(batch)
+            
             # 模拟处理逻辑
-            self._process_batch(batch)
+            self._process_batch(batch_array)
             
             end_time = time.perf_counter()
-            latencies.append((end_time - start_time) * 1000)  # 转换为毫秒
-            
-            if (i + 1) % 10 == 0:
-                self.logger.info(f"Completed {i + 1}/{self.config.num_iterations} iterations")
-                
-        # 计算结果
-        results = {
-            'mean_latency_ms': mean(latencies),
-            'std_latency_ms': stdev(latencies) if len(latencies) > 1 else 0,
-            'min_latency_ms': min(latencies),
-            'max_latency_ms': max(latencies),
-            'total_time_ms': sum(latencies),
-            'iterations': self.config.num_iterations,
-            'batch_size': self.config.batch_size
-        }
+            latencies.append((end_time - start_time) * 1000)
         
-        self.logger.info(f"Benchmark completed: {results}")
-        return results
+    def _convert_to_numpy(self, batch):
+        """将batch转换为numpy数组"""
+        import numpy as np
+        # 模拟转换逻辑 - 这可能是性能问题的根源
+        features_list = []
+        for sample in batch.samples:
+            features_list.append(np.array(sample.features, dtype=np.float32))
+        return np.stack(features_list) if features_list else np.array([])
         
     def _process_batch(self, batch) -> None:
         """处理批次数据"""

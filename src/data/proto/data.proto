@@ -4,7 +4,7 @@ package mlperf.data;
 
 message DataSample {
   string id = 1;
-  bytes features = 2;
+  repeated float features = 2;  // 修复：将bytes改为repeated float
   repeated float labels = 3;
   int64 timestamp = 4;
   map<string, string> metadata = 5;
@@ -14,12 +14,5 @@ message DataBatch {
   repeated DataSample samples = 1;
   int32 batch_size = 2;
   string batch_id = 3;
-}
-
-message DataStreamConfig {
-  string source_path = 1;
-  int32 batch_size = 2;
-  int32 prefetch_count = 3;
-  bool shuffle = 4;
-  int32 max_samples = 5;
+  required string version = 4;  // 修复：添加required字段用于验证
 }
